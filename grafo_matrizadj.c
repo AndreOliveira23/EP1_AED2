@@ -21,6 +21,9 @@ bool inicializaGrafo(Grafo* grafo, int nv){
 	grafo->numVertices = nv;
 	grafo->numArestas = 0;
     grafo->vetor_de_pais = (int*) malloc(nv * sizeof(int));//Make set
+    for (int i = 0; i < nv; i++) {
+        grafo->vetor_de_pais[i] = i; // atribui o índice atual a cada posição do vetor
+    }
     grafo->rank = (int*) malloc(nv * sizeof(int));//Make sET
 	for( i = 0; i<= grafo->numVertices; i++){
 		for( j = 0; j<= grafo->numVertices; j++){
