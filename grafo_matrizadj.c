@@ -179,7 +179,7 @@ void insertionSortAresta(Aresta array[], int numero_de_rotas){
     }
 }
 
-
+/*
 void AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
 int i;
 Aresta ArvoreGeradoraMinima[numero_de_rotas];
@@ -209,14 +209,10 @@ insertionSortAresta(array_de_arestas,numero_de_rotas); //Ordenando edges por ord
 
     for(i = sizeof(grafo->numArestas) - 2; i >= 0; i--){
     int z=0;
-    float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5}; 
-    float altura_final;
+   
        if(ArvoreGeradoraMinima[i].destino == 4){
             printf("Destino encontrado! %d->%d, peso: %.1f\n",ArvoreGeradoraMinima[i].origem,ArvoreGeradoraMinima[i].destino,ArvoreGeradoraMinima[i].peso);
-            while (altura_dos_baus[z] < ArvoreGeradoraMinima[i].peso){
-                altura_final = altura_dos_baus[z];
-                z++;    
-            }
+            
             printf("Altura máxima do baú: %.1f\n",altura_final);
        }
        //printf("Aresta %d-> %d:  %.1f\n",ArvoreGeradoraMinima[i].origem,ArvoreGeradoraMinima[i].destino,ArvoreGeradoraMinima[i].peso);
@@ -262,7 +258,7 @@ float maiorCarretaBau(Grafo* grafo, int origem, int destino) {
 
     return alturas[destino];
 }
-
+*/
 bool buscaEmLargura(Grafo* grafo, int origem, int destino, int* vetor_de_pais) {
     int numVertices = grafo->numVertices;
     bool visitado[numVertices + 1];
@@ -298,14 +294,27 @@ bool buscaEmLargura(Grafo* grafo, int origem, int destino, int* vetor_de_pais) {
     return false;
 }
 
-void imprimirCaminho(int* vetor_de_pais, int destino) {
+
+void imprimirCaminho(Grafo* grafo, int* vetor_de_pais, int destino) {
     if (vetor_de_pais[destino] != -1) {
-        imprimirCaminho(vetor_de_pais, vetor_de_pais[destino]);
+     float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5}; 
+     float altura_final;
+        int z=0;
+        while (altura_dos_baus[z] <= grafo->mat[vetor_de_pais[destino]][destino]){
+                altura_final = altura_dos_baus[z];
+                z++;    
+            }
+
+    printf("Teste: %.1f\n",grafo->mat[vetor_de_pais[destino]][destino]);
+printf("Test2: %.1f\n",altura_final);
+        //imprimirCaminho(grafo, vetor_de_pais, vetor_de_pais[destino]);
+        //printf(" -> ");
     }
 
-    printf("%d ", destino);
-}
+    //printf("%d", destino);
+    
 
+}
 
 
 /*****************************************************************************************************************************************************/
@@ -344,8 +353,22 @@ int main(int argc, char **argv){
     imprimeGrafo(&g1);
     printf("numArestas: %d\n",g1.numArestas);
     //AgmKruskal(&g1,g1.numArestas,array);
-    fscanf(file,"%d %d",&origem_consulta, &destino_consulta);
-    printf("%d %d\n",origem_consulta, destino_consulta);
+    int vetor_de_pais[g1.numVertices + 1];
+    for (int i = 1; i <= g1.numVertices; i++) {
+        vetor_de_pais[i] = -1;
+    }
+    for(i=0;i<quantidade_de_consultas;i++){
+        fscanf(file,"%d %d",&origem_consulta, &destino_consulta);
+        printf("Consulta: Origem: %d-> Destino: %d\n",origem_consulta, destino_consulta);
+        printf("Caminho encontrado: ");
+        if (buscaEmLargura(&g1, origem_consulta,destino_consulta, vetor_de_pais)) {
+            imprimirCaminho(&g1,vetor_de_pais, destino_consulta);
+            printf("\n");
+        } else {
+            printf("Nenhum caminho encontrado.\n");
+        }
+    }
+/*
     printf("%.1f\n",maiorCarretaBau(&g1,1,4));
      int vetor_de_pais[g1.numVertices + 1];
     for (int i = 1; i <= g1.numVertices; i++) {
@@ -359,7 +382,7 @@ int main(int argc, char **argv){
         printf("Nenhum caminho encontrado.");
     }
     printf("\n");
-  
+  */
 
 
 
