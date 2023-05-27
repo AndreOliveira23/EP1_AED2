@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <float.h>
+#include <math.h>
 #include "grafo_matrizadj.h"
 
 //Variáveis globais para usar no algoritmo de kruskal
@@ -14,7 +15,7 @@ bool inicializaGrafo(Grafo* grafo, int nv){
 		fprintf(stderr,"ERRO na chamada de inicializaGrafo: Numero de vértices maior que o máximo permitido de %d.\n",MAXNUMVERTICES);
 		return false;
 	}
-	if(nv <=0){
+	if(nv <0){
 		fprintf(stderr,"ERRO Na chamada de inicializaGrafo: Numero de vértices deve ser positivo.\n");
 		return false;
 	}
@@ -38,7 +39,7 @@ bool verificaValidadeVertice(int v, Grafo* grafo){
 		fprintf(stderr, "Erro: Numero do vertice (%d) maior que o número total de vertices (%d).\n",v,grafo->numVertices);
 		return false;
 	}
-	if(v<=0){
+	if(v<0){
 		fprintf(stderr, "ERRO: Número do vértice (%d) deve ser positivo.\n",v);
 		return false;
 	}
@@ -128,7 +129,7 @@ void imprimeGrafo(Grafo* grafo){
 }
 
 /*Variáveis e Funções para o algoritmo de Kruskal*/
-
+/*
 
 void make_set(Grafo* grafo,int x) {
     grafo->vetor_de_pais[x] = x;
@@ -145,9 +146,6 @@ int find_set(Grafo* grafo, int x) {
     //printf("vai retornar: %d\n",grafo->vetor_de_pais[x]);
     return grafo->vetor_de_pais[x];
 }
-
-
-
 
 void link(Grafo* grafo,int x, int y){
     if(grafo->rank[x] > grafo->rank[y]){
@@ -179,86 +177,108 @@ void insertionSortAresta(Aresta array[], int numero_de_rotas){
     }
 }
 
-/*
+
 void AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
-int i;
-Aresta ArvoreGeradoraMinima[numero_de_rotas];
-//MakeSet feito na inicialização do grafo
+    int i;
+    Aresta *ArvoreGeradoraMinima = malloc(numero_de_rotas * sizeof(Aresta));
+    int tamanho_arvore = 0;
 
-insertionSortAresta(array_de_arestas,numero_de_rotas); //Ordenando edges por ordem não-decrescente
+    insertionSortAresta(array_de_arestas, numero_de_rotas); //Ordenando edges por ordem não-decrescente
 
-    
-    for(i=0;i<numero_de_rotas;i++){
-        //printf("Array[%d].origem = %d\n",i,array_de_arestas[i].origem);
-        if(find_set(grafo,array_de_arestas[i].origem) != find_set(grafo,array_de_arestas[i].destino)){
-            ArvoreGeradoraMinima[i] = array_de_arestas[i];
-            union_sets(grafo,array_de_arestas[i].origem,array_de_arestas[i].destino);
-            //printf("D\n");
-
-            printf("Aresta %d-> %d:  %.1f é segura e será colocada na AGM.\n",array_de_arestas[i].origem,array_de_arestas[i].destino,array_de_arestas[i].peso);
-        }else{
-      printf("Aresta %d-> %d:  %.1f NÃO é segura e NÃO será colocada na AGM.\n",array_de_arestas[i].origem,array_de_arestas[i].destino,array_de_arestas[i].peso);       
+    for(i = 0; i < numero_de_rotas; i++){
+        if(find_set(grafo, array_de_arestas[i].origem) != find_set(grafo, array_de_arestas[i].destino)){
+            ArvoreGeradoraMinima[tamanho_arvore] = array_de_arestas[i];
+            tamanho_arvore++;
+            union_sets(grafo, array_de_arestas[i].origem, array_de_arestas[i].destino);
+            printf("Aresta %d->%d: %.1f é segura e será colocada na AGM.\n", array_de_arestas[i].origem, array_de_arestas[i].destino, array_de_arestas[i].peso);
+        } else {
+            printf("Aresta %d->%d: %.1f NÃO é segura e NÃO será colocada na AGM.\n", array_de_arestas[i].origem, array_de_arestas[i].destino, array_de_arestas[i].peso);       
         }
     }
     
-    printf("AGM: \n");
-    for(i = sizeof(grafo->numArestas) - 2; i >= 0; i--){
-       printf("Aresta %d-> %d:  %.1f\n",ArvoreGeradoraMinima[i].origem,ArvoreGeradoraMinima[i].destino,ArvoreGeradoraMinima[i].peso);
+    printf("AGM:\n");
+    for(i = 0; i < tamanho_arvore; i++){
+       printf("Aresta %d->%d: %.1f\n", ArvoreGeradoraMinima[i].origem, ArvoreGeradoraMinima[i].destino, ArvoreGeradoraMinima[i].peso);
     }
     
 
-    for(i = sizeof(grafo->numArestas) - 2; i >= 0; i--){
-    int z=0;
-   
-       if(ArvoreGeradoraMinima[i].destino == 4){
-            printf("Destino encontrado! %d->%d, peso: %.1f\n",ArvoreGeradoraMinima[i].origem,ArvoreGeradoraMinima[i].destino,ArvoreGeradoraMinima[i].peso);
-            
-            printf("Altura máxima do baú: %.1f\n",altura_final);
-       }
-       //printf("Aresta %d-> %d:  %.1f\n",ArvoreGeradoraMinima[i].origem,ArvoreGeradoraMinima[i].destino,ArvoreGeradoraMinima[i].peso);
-    }
-
-}
-
-
-float maiorCarretaBau(Grafo* grafo, int origem, int destino) {
-    int numVertices = grafo->numVertices;
-    float alturas[numVertices + 1];
-    bool visitado[numVertices + 1];
-
-    for (int i = 1; i <= numVertices; i++) {
-        alturas[i] = FLT_MAX;
-        visitado[i] = false;
-    }
-
-    alturas[origem] = 0.0;
-
-    for (int count = 0; count < numVertices - 1; count++) {
-        int u = -1;
-        float menorAltura = FLT_MAX;
-
-        for (int v = 1; v <= numVertices; v++) {
-            if (!visitado[v] && alturas[v] < menorAltura) {
-                u = v;
-                menorAltura = alturas[v];
-            }
-        }
-
-        if (u == -1)
-            break;
-
-        visitado[u] = true;
-
-        for (int v = 1; v <= numVertices; v++) {
-            if (!visitado[v] && grafo->mat[u][v] > 0 && grafo->mat[u][v] < alturas[v]) {
-                alturas[v] = grafo->mat[u][v];
-            }
-        }
-    }
-
-    return alturas[destino];
+    free(ArvoreGeradoraMinima);
 }
 */
+
+/*------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+void make_set(Grafo* grafo, int x) {
+    grafo->vetor_de_pais[x] = x;
+    grafo->rank[x] = 0;
+}
+
+int find_set(Grafo* grafo, int x) {
+    if (x != grafo->vetor_de_pais[x]) {
+        grafo->vetor_de_pais[x] = find_set(grafo, grafo->vetor_de_pais[x]);
+    }
+    return grafo->vetor_de_pais[x];
+}
+
+void link(Grafo* grafo, int x, int y) {
+    if (grafo->rank[x] < grafo->rank[y]) {
+        grafo->vetor_de_pais[y] = x;
+    } else {
+        grafo->vetor_de_pais[x] = y;
+    }
+    
+    if (grafo->rank[x] == grafo->rank[y]) {
+        grafo->rank[y]++;
+    }
+}
+
+void union_sets(Grafo* grafo, int x, int y) {
+    link(grafo, find_set(grafo, x), find_set(grafo, y));
+}
+
+void sortAresta(Aresta array[], int numero_de_rotas) {
+    float i, j;
+    Aresta key;
+    for (i = 1; i < numero_de_rotas; i++) {
+        key = array[(int)i];
+        j = i - 1;
+        while (j >= 0 && array[(int)j].peso < key.peso) {
+            array[(int)j + 1] = array[(int)j];
+            j = j - 1;
+        }
+        array[(int)j + 1] = key;
+    }
+}
+
+
+void AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas) {
+    int i;
+    Aresta* arvoreGeradoraMaxima = malloc(numero_de_rotas * sizeof(Aresta));
+    int tamanho_arvore = 0;
+
+    sortAresta(array_de_arestas, numero_de_rotas); // Ordenando arestas por ordem não-crescente
+
+    for (i = numero_de_rotas - 1; i >= 0; i--) {
+        if (find_set(grafo, array_de_arestas[i].origem) != find_set(grafo, array_de_arestas[i].destino)) {
+            arvoreGeradoraMaxima[tamanho_arvore] = array_de_arestas[i];
+            tamanho_arvore++;
+            union_sets(grafo, array_de_arestas[i].origem, array_de_arestas[i].destino);
+            printf("Aresta %d->%d: %.1f é segura e será colocada na AGM.\n", array_de_arestas[i].origem, array_de_arestas[i].destino, array_de_arestas[i].peso);
+        } else {
+            printf("Aresta %d->%d: %.1f NÃO é segura e NÃO será colocada na AGM.\n", array_de_arestas[i].origem, array_de_arestas[i].destino, array_de_arestas[i].peso);       
+        }
+    }
+    
+    printf("AGM:\n");
+    for (i = tamanho_arvore - 1; i >= 0; i--) {
+       printf("Aresta %d->%d: %.1f\n", arvoreGeradoraMaxima[i].origem, arvoreGeradoraMaxima[i].destino, arvoreGeradoraMaxima[i].peso);
+    }
+    
+
+    free(arvoreGeradoraMaxima);
+}
+
+
 bool buscaEmLargura(Grafo* grafo, int origem, int destino, int* vetor_de_pais) {
     int numVertices = grafo->numVertices;
     bool visitado[numVertices + 1];
@@ -296,25 +316,34 @@ bool buscaEmLargura(Grafo* grafo, int origem, int destino, int* vetor_de_pais) {
 
 
 void imprimirCaminho(Grafo* grafo, int* vetor_de_pais, int destino) {
-    if (vetor_de_pais[destino] != -1) {
-     float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5}; 
+float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5}; 
      float altura_final;
-        int z=0;
-        while (altura_dos_baus[z] <= grafo->mat[vetor_de_pais[destino]][destino]){
-                altura_final = altura_dos_baus[z];
-                z++;    
-            }
+     int z=0;
+    
+    if (vetor_de_pais[destino] != -1) {     
+         while (altura_dos_baus[z] <= grafo->mat[vetor_de_pais[destino]][destino] && grafo->mat[vetor_de_pais[destino]][destino] != 5.5){
+       
+             altura_final = altura_dos_baus[z];
+             z++;
+           
+     }
+    if(grafo->mat[vetor_de_pais[destino]][destino] >= 4.5){
+    altura_final = 4.5;    
+    }
 
     printf("Teste: %.1f\n",grafo->mat[vetor_de_pais[destino]][destino]);
-printf("Test2: %.1f\n",altura_final);
+    printf("Test2: %.1f\n",altura_final);
         //imprimirCaminho(grafo, vetor_de_pais, vetor_de_pais[destino]);
         //printf(" -> ");
     }
 
     //printf("%d", destino);
-    
-
+ 
 }
+
+
+
+
 
 
 /*****************************************************************************************************************************************************/
@@ -352,8 +381,14 @@ int main(int argc, char **argv){
     }    
     imprimeGrafo(&g1);
     printf("numArestas: %d\n",g1.numArestas);
-    //AgmKruskal(&g1,g1.numArestas,array);
-    int vetor_de_pais[g1.numVertices + 1];
+    //encontrarCaminhos(&g1, 0, 7);
+    //maiorAlturaCarretaBau(&g1,0,7);
+    AgmKruskal(&g1,g1.numArestas,array);
+//dijkstra(&g1,0,7);
+//dijkstra(&g1,1,6);
+//dijkstra(&g1,1,7);
+//dijkstra(&g1,6,7);    
+int vetor_de_pais[g1.numVertices + 1];
     for (int i = 1; i <= g1.numVertices; i++) {
         vetor_de_pais[i] = -1;
     }
