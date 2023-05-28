@@ -8,7 +8,6 @@
 //Variáveis globais para usar no algoritmo de kruskal
 int numero_de_vertices;
 
-
 bool inicializaGrafo(Grafo* grafo, int nv){
 	int i,j;
 	if(nv > MAXNUMVERTICES){
@@ -129,7 +128,7 @@ void imprimeGrafo(Grafo* grafo){
 }
 
 /*Variáveis e Funções para o algoritmo de Kruskal*/
-/*
+
 
 void make_set(Grafo* grafo,int x) {
     grafo->vetor_de_pais[x] = x;
@@ -201,81 +200,7 @@ void AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
        printf("Aresta %d->%d: %.1f\n", ArvoreGeradoraMinima[i].origem, ArvoreGeradoraMinima[i].destino, ArvoreGeradoraMinima[i].peso);
     }
     
-
     free(ArvoreGeradoraMinima);
-}
-*/
-
-/*------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-void make_set(Grafo* grafo, int x) {
-    grafo->vetor_de_pais[x] = x;
-    grafo->rank[x] = 0;
-}
-
-int find_set(Grafo* grafo, int x) {
-    if (x != grafo->vetor_de_pais[x]) {
-        grafo->vetor_de_pais[x] = find_set(grafo, grafo->vetor_de_pais[x]);
-    }
-    return grafo->vetor_de_pais[x];
-}
-
-void link(Grafo* grafo, int x, int y) {
-    if (grafo->rank[x] < grafo->rank[y]) {
-        grafo->vetor_de_pais[y] = x;
-    } else {
-        grafo->vetor_de_pais[x] = y;
-    }
-    
-    if (grafo->rank[x] == grafo->rank[y]) {
-        grafo->rank[y]++;
-    }
-}
-
-void union_sets(Grafo* grafo, int x, int y) {
-    link(grafo, find_set(grafo, x), find_set(grafo, y));
-}
-
-void sortAresta(Aresta array[], int numero_de_rotas) {
-    float i, j;
-    Aresta key;
-    for (i = 1; i < numero_de_rotas; i++) {
-        key = array[(int)i];
-        j = i - 1;
-        while (j >= 0 && array[(int)j].peso < key.peso) {
-            array[(int)j + 1] = array[(int)j];
-            j = j - 1;
-        }
-        array[(int)j + 1] = key;
-    }
-}
-
-
-void AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas) {
-    int i;
-    Aresta* arvoreGeradoraMaxima = malloc(numero_de_rotas * sizeof(Aresta));
-    int tamanho_arvore = 0;
-
-    sortAresta(array_de_arestas, numero_de_rotas); // Ordenando arestas por ordem não-crescente
-
-    for (i = numero_de_rotas - 1; i >= 0; i--) {
-        if (find_set(grafo, array_de_arestas[i].origem) != find_set(grafo, array_de_arestas[i].destino)) {
-            arvoreGeradoraMaxima[tamanho_arvore] = array_de_arestas[i];
-            tamanho_arvore++;
-            union_sets(grafo, array_de_arestas[i].origem, array_de_arestas[i].destino);
-            printf("Aresta %d->%d: %.1f é segura e será colocada na AGM.\n", array_de_arestas[i].origem, array_de_arestas[i].destino, array_de_arestas[i].peso);
-        } else {
-            printf("Aresta %d->%d: %.1f NÃO é segura e NÃO será colocada na AGM.\n", array_de_arestas[i].origem, array_de_arestas[i].destino, array_de_arestas[i].peso);       
-        }
-    }
-    
-    printf("AGM:\n");
-    for (i = tamanho_arvore - 1; i >= 0; i--) {
-       printf("Aresta %d->%d: %.1f\n", arvoreGeradoraMaxima[i].origem, arvoreGeradoraMaxima[i].destino, arvoreGeradoraMaxima[i].peso);
-    }
-    
-
-    free(arvoreGeradoraMaxima);
 }
 
 
@@ -315,7 +240,7 @@ bool buscaEmLargura(Grafo* grafo, int origem, int destino, int* vetor_de_pais) {
 }
 
 
-void imprimirCaminho(Grafo* grafo, int* vetor_de_pais, int destino) {
+void imprimirCaminho(Grafo* grafo, int* vetor_de_pais, int destino,float *alturas_finais) {
 float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5}; 
      float altura_final;
      int z=0;
@@ -333,14 +258,11 @@ float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5};
 
     printf("Teste: %.1f\n",grafo->mat[vetor_de_pais[destino]][destino]);
     printf("Test2: %.1f\n",altura_final);
-        //imprimirCaminho(grafo, vetor_de_pais, vetor_de_pais[destino]);
-        //printf(" -> ");
+    int aux = alturas_finais[0];
+    alturas_finais[aux+1] = altura_final;
+    alturas_finais[0]++;
     }
-
-    //printf("%d", destino);
- 
 }
-
 
 
 
@@ -369,6 +291,7 @@ int main(int argc, char **argv){
     inicializaGrafo(&g1,numero_de_centros_de_distribuicao);
     imprimeGrafo(&g1);
     Aresta array[numero_de_rotas];
+
     /*Lê as arestas e pesos*/
     for(i=0;i<numero_de_rotas;i++){
         fscanf(file,"%d %d %f",&centro_de_origem, &centro_de_destino, &altura_maxima_carreta);
@@ -379,70 +302,43 @@ int main(int argc, char **argv){
         array[i].peso = altura_maxima_carreta;
         printf("%d %d %.1f\n",centro_de_origem, centro_de_destino, altura_maxima_carreta);
     }    
+
+
     imprimeGrafo(&g1);
+   
     printf("numArestas: %d\n",g1.numArestas);
-    //encontrarCaminhos(&g1, 0, 7);
-    //maiorAlturaCarretaBau(&g1,0,7);
+
     AgmKruskal(&g1,g1.numArestas,array);
-//dijkstra(&g1,0,7);
-//dijkstra(&g1,1,6);
-//dijkstra(&g1,1,7);
-//dijkstra(&g1,6,7);    
-int vetor_de_pais[g1.numVertices + 1];
+    
+    int vetor_de_pais[g1.numVertices + 1];
     for (int i = 1; i <= g1.numVertices; i++) {
         vetor_de_pais[i] = -1;
     }
+    
+    /*Lendo consultas*/
+
+    float alturas_finais_arquivo[quantidade_de_consultas+1];
+    alturas_finais_arquivo[0] = 0;
     for(i=0;i<quantidade_de_consultas;i++){
         fscanf(file,"%d %d",&origem_consulta, &destino_consulta);
         printf("Consulta: Origem: %d-> Destino: %d\n",origem_consulta, destino_consulta);
         printf("Caminho encontrado: ");
         if (buscaEmLargura(&g1, origem_consulta,destino_consulta, vetor_de_pais)) {
-            imprimirCaminho(&g1,vetor_de_pais, destino_consulta);
+            imprimirCaminho(&g1,vetor_de_pais, destino_consulta,alturas_finais_arquivo);
             printf("\n");
         } else {
             printf("Nenhum caminho encontrado.\n");
         }
     }
-/*
-    printf("%.1f\n",maiorCarretaBau(&g1,1,4));
-     int vetor_de_pais[g1.numVertices + 1];
-    for (int i = 1; i <= g1.numVertices; i++) {
-        vetor_de_pais[i] = -1;
-    }
-        
-    printf("Caminho encontrado: ");
-    if (buscaEmLargura(&g1, 1,2, vetor_de_pais)) {
-        imprimirCaminho(vetor_de_pais, 2);
-    } else {
-        printf("Nenhum caminho encontrado.");
-    }
-    printf("\n");
-  */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*Lê os caminhos desejados
-     for(i=0;i<=2;i++){
-        fscanf(file,"%d %d",&x,&y);
-        printf("%d %d\n",x,y);
-    }
-    fclose(file);
     
-    Grafo g1;
-    if(inicializaGrafo(&g1,10)) printf("true");*/
+    /*Criando arquivo de saída*/
+      FILE *pont_arq;
+  
+      //abrindo o arquivo
+      pont_arq = fopen("saida.txt", "a");
+      for(i=1; i< (sizeof(alturas_finais_arquivo) / sizeof(alturas_finais_arquivo[0])) ; i++){
+        fprintf(pont_arq,"%.1f\n",alturas_finais_arquivo[i]);  
+      }
+
     return 0;
 }
