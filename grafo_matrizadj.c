@@ -177,6 +177,20 @@ void insertionSortAresta(Aresta array[], int numero_de_rotas){
     }
 }
 
+void insertionSortPorOrigemAresta(Aresta array[], int tamanho_do_array){
+    int i, j;
+    Aresta key;
+
+    for (i = 1; i <tamanho_do_array; i++) {
+        key = array[i];
+        j = i - 1;
+        while (j >= 0 && array[j].origem> key.origem) {
+            array[j + 1] = array[j];
+            j = j - 1;
+        }
+        array[j + 1] = key;
+    }
+}
 
 
 Aresta* AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
@@ -197,57 +211,87 @@ Aresta* AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
         }
     }
     
-    //printf("AGM:\n");
+    printf("AGM:\n");
     for(i = 0; i < tamanho_arvore; i++){
-       //printf("Aresta %d->%d: %.1f\n", ArvoreGeradoraMaxima[i].origem, ArvoreGeradoraMaxima[i].destino, ArvoreGeradoraMaxima[i].peso);
+       	printf("Aresta %d->%d: %.1f\n", ArvoreGeradoraMaxima[i].origem, ArvoreGeradoraMaxima[i].destino, ArvoreGeradoraMaxima[i].peso);
     }
     
     return ArvoreGeradoraMaxima;
 }
 
 
+void buscaArvoreGeradoraMaxima( Aresta* ArvoreGeradoraMaxima, int vertice_origem, int vertice_destino, float menorPeso_backTracking){
 
+     //printf("%d -> ",vertice_origem);
 
-
-
-float buscaArvoreGeradoraMaxima(Aresta* ArvoreGeradoraMaxima, int vertice_origem, int vertice_destino){
-    Aresta menorPesoAresta;
-
-    printf("%d -> ",vertice_origem);
-
-    Aresta origem;
     int i=0;
+    Aresta menorPeso;
+    menorPeso.origem = -1;
+    menorPeso.destino = -1;
+    menorPeso.peso = menorPeso_backTracking;		
 
-    //Percorrendo arvore até achar a origem correta
-    while(ArvoreGeradoraMaxima[i].origem != vertice_origem){
-        origem = ArvoreGeradoraMaxima[i+1];
+	printf("Antes insertioNSOrt: Arvore[0] %d -> %d \n",ArvoreGeradoraMaxima[0].origem,ArvoreGeradoraMaxima[0].destino);
+	    
+		float x = 	sizeof(ArvoreGeradoraMaxima);
+		float y = sizeof(ArvoreGeradoraMaxima[0]);
+		int result = x/y * 10;
+	    	printf("sizeof numArestas: %d\n",result);	
+
+	    				
+	    // Classificar as arestas
+	    insertionSortPorOrigemAresta(ArvoreGeradoraMaxima,result);	
+		printf("Apos insertonSort: Arvore[0] %d -> %d: \n",ArvoreGeradoraMaxima[0].origem,ArvoreGeradoraMaxima[0].destino);
+	
+    Aresta atual = ArvoreGeradoraMaxima[0];	
+	printf("Atual: %d -> %d : %.1f		\n",atual.origem,atual.destino,atual.peso);
+    
+//Percorrendo arvore até achar a origem correta
+       while(atual.origem != vertice_origem ){
+		atual = ArvoreGeradoraMaxima[i+1];
+		i++;
+/*Se chegou no próximo if, quer dizer que não existe um vértice que parte do vértice dado como origem.
+Precisa procurar a aresta que chega no vértice e fazer um backtracking na AGM
+*/		
+		if(i == result){
+		        printf("não existe vértice com essa origem. Fazendo backtracking...\n");
+			i=0;			
+			atual = ArvoreGeradoraMaxima[0];
+			
+			//Ao sair do while, encontrou a aresta que tem  a origem dada como destino;
+			while(atual.destino != vertice_origem){
+				atual = ArvoreGeradoraMaxima[i+1];
+				i++;
+			}
+			printf("Atual no backtracking: %d -> %d : %.1f		\n",atual.origem,atual.destino,atual.peso);
+			menorPeso=atual;
+			printf("Menor peso no backtracking (antes de chamar a função) : %d -> %d : %.1f		\n",menorPeso.origem,menorPeso.destino,menorPeso.peso);
+			buscaArvoreGeradoraMaxima( ArvoreGeradoraMaxima, atual.origem, vertice_destino, menorPeso.peso);
+			return;
+		}
+	}		
+	printf("Atual antes de percorrer destino: %d -> %d : %.1f		\n",atual.origem,atual.destino,atual.peso);
+		i=0;
+ //Partindo da origem correta até chegar no destino		
+    while(atual.destino != vertice_destino){
+	printf("MenorPeso %d -> %d: %.1f \n",menorPeso.origem,menorPeso.destino,menorPeso.peso);		
+	printf("Atual %d -> %d: %.1f \n",atual.origem,atual.destino,atual.peso	);		
+	if (atual.peso <  menorPeso.peso) {
+            menorPeso 	=   atual;
+        }	        
+	atual = ArvoreGeradoraMaxima[i+1];
         i++;
-    }
-    
-     if (origem.destino != vertice_destino) {
-        if (origem.peso < menorPesoAresta.peso) {
-            menorPesoAresta = origem;
-        }
-        buscaArvoreGeradoraMaxima(ArvoreGeradoraMaxima, origem.destino, vertice_destino);
-    }else{
-        printf("%d\n",origem.destino);
-    }
-    
-    //if(origem.destino == vertice_destino){
-        printf("Aresta de menor peso: %d -> %d : %.1f\n", menorPesoAresta.origem, menorPesoAresta.destino, menorPesoAresta.peso);
-       
-    //}
-    
-    float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5}; 
-    float altura_final;
-    int z=0;
-    while (altura_dos_baus[z] <= origem.peso){
-             altura_final = altura_dos_baus[z];
-             z++;
-     }
-   
-    return altura_final;
-    
+    }	
+	
+
+		//Chegou na aresta de destino certo
+	if (atual.peso <  menorPeso.peso) {
+            menorPeso 	=   atual;
+        }			
+	printf("Atual final:		 %d -> %d: %.1f \n",atual.origem,atual.destino,atual.peso	);		
+	printf("Aresta de menor peso: %d -> %d: %.1f\n",menorPeso.origem,menorPeso.destino,menorPeso.peso);	    		
+
+printf("/***********************************************************************************************************\n		");			
+
 }
 
 
@@ -293,30 +337,19 @@ int main(int argc, char **argv){
 
     Aresta* teste = AgmKruskal(&g1,g1.numArestas,array);
 
-    float altura_consulta = buscaArvoreGeradoraMaxima(teste, 0,7);
-        printf("Altura final da consulta %d: %.1f\n", 2, altura_consulta);
-    
-    altura_consulta = 0.0;  
-    altura_consulta = buscaArvoreGeradoraMaxima(teste, 1,7);
-    printf("Altura final da consulta %d: %.1f\n", 3, altura_consulta);
-     
-
-    int vetor_de_pais[g1.numVertices + 1];
-    for (int i = 1; i <= g1.numVertices; i++) {
-        vetor_de_pais[i] = -1;
-    }
     
     /*Lendo consultas*/
 
     float alturas_finais_arquivo[quantidade_de_consultas+1];
-    
-
+   
+	Aresta menorPeso; 
+	
     alturas_finais_arquivo[0] = 0;
     for(i=0;i<quantidade_de_consultas;i++){
     float altura_final = 0.0;
         fscanf(file,"%d %d",&origem_consulta, &destino_consulta);
-        printf("Consulta: Origem: %d-> Destino: %d\n",origem_consulta, destino_consulta);   
-        
+       printf("Consulta: Origem: %d-> Destino: %d\n",origem_consulta, destino_consulta);   
+       buscaArvoreGeradoraMaxima(teste, origem_consulta, destino_consulta, 10.0); 
     }
 
     /*Criando arquivo de saída*/
@@ -330,3 +363,4 @@ int main(int argc, char **argv){
 
     return 0;
 }
+			
