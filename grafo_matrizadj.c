@@ -7,6 +7,9 @@
 
 //Variáveis globais para usar no algoritmo de kruskal
 int numero_de_vertices;
+float *alturas_finais_arquivo;	
+int teste_contador=1;
+
 
 bool inicializaGrafo(Grafo* grafo, int nv){
 	int i,j;
@@ -287,8 +290,22 @@ Precisa procurar a aresta que chega no vértice e fazer um backtracking na AGM
 	if (atual.peso <  menorPeso.peso) {
             menorPeso 	=   atual;
         }			
-	printf("Atual final:		 %d -> %d: %.1f \n",atual.origem,atual.destino,atual.peso	);		
-	printf("Aresta de menor peso: %d -> %d: %.1f\n",menorPeso.origem,menorPeso.destino,menorPeso.peso);	    		
+	printf("Atual final:		 %d -> %d: %.1f \n",atual.origem,atual.destino,atual.peso	)	;		
+	printf("Aresta de menor peso: %d -> %d: %.1f\n",menorPeso.origem,menorPeso.destino,menorPeso.peso);
+	
+	//Comparar pesos para carreta
+	
+	float altura_dos_baus[] = {2.5,3.0,3.5,4.0,4.5};
+	float altura_final ;
+	int z=0;
+	for(z=0;z<=4;z++){
+		if(altura_dos_baus[z] <= menorPeso.peso){
+			altura_final = altura_dos_baus[z];	
+		}
+	}	
+	printf("Altura final: %.1f \n",altura_final);		
+	alturas_finais_arquivo[teste_contador] = altura_final;
+	teste_contador++;	
 
 printf("/***********************************************************************************************************\n		");			
 
@@ -340,11 +357,12 @@ int main(int argc, char **argv){
     
     /*Lendo consultas*/
 
-    float alturas_finais_arquivo[quantidade_de_consultas+1];
-   
-	Aresta menorPeso; 
+    Aresta menorPeso; 
 	
-    alturas_finais_arquivo[0] = 0;
+    	alturas_finais_arquivo = (float*) realloc(alturas_finais_arquivo,quantidade_de_consultas * sizeof(float) + 1	);
+
+	alturas_finais_arquivo[0]=0;
+
     for(i=0;i<quantidade_de_consultas;i++){
     float altura_final = 0.0;
         fscanf(file,"%d %d",&origem_consulta, &destino_consulta);
@@ -352,14 +370,14 @@ int main(int argc, char **argv){
        buscaArvoreGeradoraMaxima(teste, origem_consulta, destino_consulta, 10.0); 
     }
 
-    /*Criando arquivo de saída*/
+
+	//Escrevendo arquivo de saída
+
       FILE *pont_arq;
-  
-      //abrindo o arquivo
       pont_arq = fopen("saida.txt", "a");
-      for(i=1; i< (sizeof(alturas_finais_arquivo) / sizeof(alturas_finais_arquivo[0])) ; i++){
-        fprintf(pont_arq,"%.1f\n",alturas_finais_arquivo[i]);  
-      }
+      for(i=1; i <= quantidade_de_consultas; i++){
+ 		fprintf(pont_arq,"%.1f\n",alturas_finais_arquivo[i]);  
+	}
 
     return 0;
 }
