@@ -1,15 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <float.h>
-#include <math.h>
 #include "grafo_matrizadj.h"
 
-//Variáveis globais para usar no algoritmo de kruskal
-int numero_de_vertices;
-float *alturas_finais_arquivo;	
-int teste_contador=1;
-int tamanho_arvore;
 
 bool inicializaGrafo(Grafo* grafo, int nv){
 	int i,j;
@@ -57,7 +50,6 @@ void insereAresta(int v1, int v2, Peso peso, Grafo* grafo){
     if((grafo->mat[v1][v2] != AN) && (v1 > v2)){
         printf("Erro! -> A ordem do número dos centros de distribuição deve ser crescente: ");
         grafo->mat[v1][v2] = AN;
-        //grafo->numArestas--; 
         return;
     }else{
 	    grafo->mat[v1][v2] = peso;
@@ -139,13 +131,9 @@ void make_set(Grafo* grafo,int x) {
 }
 
 int find_set(Grafo* grafo, int x) {
-    //printf("execução find-set!\n x=%d\n",x);
     if ( x != grafo->vetor_de_pais[x]) {
-        //printf("entrou no if...\n");
-        //printf("grafo->vetor_de_pais[%d] = %d\n",x,grafo->vetor_de_pais[x]);
         grafo->vetor_de_pais[x] = find_set(grafo,grafo->vetor_de_pais[x]);
     }
-    //printf("vai retornar: %d\n",grafo->vetor_de_pais[x]);
     return grafo->vetor_de_pais[x];
 }
 
@@ -184,7 +172,7 @@ void insertionSortAresta(Aresta array[], int numero_de_rotas){
 Aresta* AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
     int i;
     Aresta *ArvoreGeradoraMaxima = malloc(numero_de_rotas * sizeof(Aresta));
- 
+    int tamanho_arvore = 0;
 
     insertionSortAresta(array_de_arestas, numero_de_rotas); //Ordenando edges por ordem não-crescente
 
@@ -199,16 +187,16 @@ Aresta* AgmKruskal(Grafo* grafo, int numero_de_rotas, Aresta* array_de_arestas){
         }
     }
     
-    printf("AGM:\n");
+    printf("Árvore Geradora Máxima resultante:\n");
     for(i = 0; i < tamanho_arvore; i++){
        	printf("Aresta %d->%d: %.1f\n", ArvoreGeradoraMaxima[i].origem, ArvoreGeradoraMaxima[i].destino, ArvoreGeradoraMaxima[i].peso);
     }
-    
+
     return ArvoreGeradoraMaxima;
 }
 
 
-int dfs(int vertice, int destino, int *visitado, Aresta *arestas, int numArestas, float *menorPeso) {
+int buscaEmProfundidadeAGM(int vertice, int destino, int *visitado, Aresta *arestas, int numArestas, float *menorPeso) {
     if (vertice == destino) {
         return 1; // Encontrou o destino
     }
@@ -219,7 +207,7 @@ int dfs(int vertice, int destino, int *visitado, Aresta *arestas, int numArestas
     for (i = 0; i < numArestas; i++) {
         if (arestas[i].origem == vertice && !visitado[arestas[i].destino]) {
             // Se a aresta parte do vértice atual e o destino ainda não foi visitado
-            if (dfs(arestas[i].destino, destino, visitado, arestas, numArestas, menorPeso)) {
+            if (buscaEmProfundidadeAGM(arestas[i].destino, destino, visitado, arestas, numArestas, menorPeso)) {
                 // Se encontrou o destino a partir desse vértice, verifica se o peso da aresta é menor
                 if (*menorPeso == -1 || arestas[i].peso < *menorPeso) {
                     *menorPeso = arestas[i].peso;
@@ -229,7 +217,7 @@ int dfs(int vertice, int destino, int *visitado, Aresta *arestas, int numArestas
         }
         else if (arestas[i].destino == vertice && !visitado[arestas[i].origem]) {
             // Se a aresta chega ao vértice atual e a origem ainda não foi visitada
-            if (dfs(arestas[i].origem, destino, visitado, arestas, numArestas, menorPeso)) {
+            if (buscaEmProfundidadeAGM(arestas[i].origem, destino, visitado, arestas, numArestas, menorPeso)) {
                 // Se encontrou o destino a partir desse vértice, verifica se o peso da aresta é menor
                 if (*menorPeso == -1 || arestas[i].peso < *menorPeso) {
                     *menorPeso = arestas[i].peso;
@@ -244,4 +232,3 @@ int dfs(int vertice, int destino, int *visitado, Aresta *arestas, int numArestas
 
 
 /*****************************************************************************************************************************************************/
-
