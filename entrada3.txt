@@ -1,0 +1,24 @@
+4 7 4
+1 2 4.0
+1 4 4.3
+2 3 3.8
+2 4 5.5
+3 4 3.3
+3 2 3.8
+4 1 4.4
+1 3
+1 4
+1 2
+4 1
+
+/*Saída esperada
+No arquivo saida.txt: 
+3.5
+4.0
+4.0
+4.0
+
+Na saída de erro: (Lembrar que os erros estão sendo redirecionados para a saída de erro padrão, através de fprintf.
+Erro! -> Para a entrada (3 -> 2: 3.8), A ordem do número dos centros de distribuição deve ser crescente! (v1 < v2))
+Erro! -> Para a entrada (4 -> 1: 4.4), A ordem do número dos centros de distribuição deve ser crescente! (v1 < v2))
+*/
