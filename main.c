@@ -32,7 +32,6 @@ int main(int argc, char **argv){
     for(i=0;i<numero_de_rotas;i++){
         fscanf(arquivo_de_entrada,"%d %d %f",&centro_de_origem, &centro_de_destino, &altura_maxima_carreta);
         insereAresta(centro_de_origem,centro_de_destino,altura_maxima_carreta,&g1);
-        insereAresta(centro_de_destino,centro_de_origem,altura_maxima_carreta,&g1);
         array[i].origem = centro_de_origem;
         array[i].destino = centro_de_destino;
         array[i].peso = altura_maxima_carreta;
