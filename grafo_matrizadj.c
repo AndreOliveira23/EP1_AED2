@@ -45,19 +45,14 @@ void insereAresta(int v1, int v2, Peso peso, Grafo* grafo){
 	if(! ( verificaValidadeVertice(v1, grafo) && verificaValidadeVertice(v2, grafo)))
 	 return;
 
-
-    /*Verifica se o caminho de volta já existe)*/
-    if((grafo->mat[v1][v2] != AN) && (v1 > v2)){
-        printf("Erro! -> A ordem do número dos centros de distribuição deve ser crescente: ");
+    
+    if(v1 > v2){//Se v1 > v2, a entrada é inválida
+        fprintf(stderr,"Erro! -> Para a entrada (%d -> %d: %.1f), A ordem do número dos centros de distribuição deve ser crescente! (v1 < v2))\n",v1,v2,peso);
         grafo->mat[v1][v2] = AN;
         return;
     }else{
-	    grafo->mat[v1][v2] = peso;
-        if(grafo->mat[v2][v1] != AN){
-	        
-        }else{
-            grafo->numArestas++;        
-        }
+	grafo->mat[v1][v2] = peso;
+        grafo->numArestas++;        
     }
 }
 
@@ -232,3 +227,4 @@ int buscaEmProfundidadeAGM(int vertice, int destino, int *visitado, Aresta *ares
 
 
 /*****************************************************************************************************************************************************/
+
