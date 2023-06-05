@@ -82,18 +82,10 @@ void insereAresta(int v1,int v2, Peso peso, Grafo* grafo){
 		fprintf(stderr, "ERRO: Falha na alocação de memória na função InsereAresta\n");
 	}
 
-	/*Verifica se o caminho de volta existe*/
-	Aresta* atual = grafo->listaAdj[v2];
-	while(atual != NULL){
-		if(atual->destino == v1){ //Se existir, adiciona o caminho de volta sem incrementar o número de arestas;	
-			p->destino = v2;
-			p->peso = peso;
-			p->prox = grafo->listaAdj[v1];
-			grafo->listaAdj[v1] = p;
-			return;
-		}
-		atual = atual->prox;
-	}
+    if(v1 > v2){
+        fprintf(stderr,"Erro! -> Para a entrada (%d -> %d: %.1f), A ordem do número dos centros de distribuição deve ser crescente! (v1 < v2))\n",v1,v2,peso);
+        return;
+    }
     
 	p->destino = v2;
 	p->peso = peso;
